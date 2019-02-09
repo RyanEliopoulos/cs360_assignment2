@@ -37,5 +37,10 @@ void exitWrapper(int, int);
 /* takes file descriptor */
 void closeWrapper(int);
 
+/* strcmp wrapper */
 /* bins strcmp return values into < 0, 0, > 0 */
 int strCheck(char *, char *);
+
+/* Checks program arguments for validity */
+/* truncates search word to WORD_SIZE */
+void checkArgs(int, char*[]);

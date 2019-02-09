@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
     int fd;
     if ((fd = open(DICTIONARY, O_RDONLY)) == -1) {  // This works
         fprintf(stderr, "Error reading from dictionary.\n%s\n", strerror(errno));        
-        exit(ERR_DICT_OPEN);
+        exitWrapper(ERR_DICT_OPEN);
     }
 
     /* search dictionary */
@@ -24,22 +24,3 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 }
-
-void checkArgs(int argc, char *argv[]) {
-
-    if (argc == 1) {
-        fprintf(stderr, "Must include a word to search for\n"); 
-        exit(ERR_ARG); 
-    }
-
-    if (argc > 2) {
-        fprintf(stderr, "Too many arguments. Include only one word to search for \n");
-        exit(ERR_ARG);
-    }
-
-    /* truncate search term if length exceeds word size */
-    if (strlen(argv[1]) > WORD_SIZE) {
-        argv[1][WORD_SIZE - 1] = '\0';  
-    }
-}
-

@@ -1,5 +1,6 @@
 #include"read.h"
 
+
 int ok(int fd, char *want) {
 
     /* Binary Search variables */
@@ -20,7 +21,7 @@ int ok(int fd, char *want) {
 
         /* Read dictionary word and compare against want */
         readCustom(fd, have);
-        int ret = strcmp(want, have);
+        int ret = strcmp(want, have); // Can probably remove this stuff 
         printf("ret is %d\n", ret);
         printf("bot is %ld, mid: %ld, top: %ld\n", bot, mid, top);
         printf("have is <%s>\n\n\n", have);
@@ -76,7 +77,7 @@ off_t seekWrapper(int fd, off_t read_amount, int whence) {
     /* checking for lseek errors */ 
     if (ret == -1) {
         fprintf(stderr, "Error read at offset %d.\n %s\n", whence, strerror(errno));
-        exit(ERR_LSEEK);
+        exitWrapper(ERR_LSEEK);
     }
 }
 
@@ -90,14 +91,14 @@ void readCustom(int fd, char *buf) {
     if (ret  == -1) {
         fprintf(stderr, "error reading word from dictionary.\n %s", strerror(errno)); 
         free(buf);
-        exit(ERR_DICT_READ);
+        exitWrapper(ERR_DICT_READ);
     }
 
     /* check for nonsense */
     if (ret < WORD_SIZE) {
         fprintf(stderr, "failed to read and entire word for some reason\n");
         free(buf);
-        exit(ERR_DICT_READ);
+        exitWrapper(ERR_DICT_READ);
     }
 
     /* Remove trailing whitespace and null-terminate */
@@ -131,4 +132,23 @@ int strCheck(char *s1, char *s2) {
     if (ret < 0) return -1;
     if (ret == 0) return 0;
     if (ret > 0) return 1; 
+}
+
+
+void checkArgs(int argc, char *argv[]) {
+
+    if (argc == 1) {
+        fprintf(stderr, "Must include a word to search for\n"); 
+        exitWrapper(ERR_ARG); 
+    }
+
+    if (argc > 2) {
+        fprintf(stderr, "Too many arguments. Include only one word to search for \n");
+        exitWrapper(ERR_ARG);
+    }
+
+    /* truncate search term if length exceeds word size */
+    if (strlen(argv[1]) > WORD_SIZE) {
+        argv[1][WORD_SIZE - 1] = '\0';  
+    }
 }
