@@ -1,29 +1,46 @@
 #include<fcntl.h>
 #include"read.h"
-#include<errno.h>
 
+void checkArgs(int, char *[]);
 
 int main(int argc, char *argv[]) {
-    
-    //char want[10] = "horse"; 
-    //char want[WORD_SIZE + 1];
-    //printf("%s\n", argv[1]);
-    //strcpy(want, argv[1]);
-    
-    char *want = argv[1];
-    printf("<%s>\n", want);   
- 
-    int fd = open("./dictionaries/webster", O_RDONLY);
-    printf("%s\n", strerror(errno));
 
-    printf("%d\n", fd);
-    if(ok(fd, want)) {
+    /* quick check for argument validity */
+    checkArgs(argc, argv);     
+
+    /* open file */
+    int fd;
+    if ((fd = open(DICTIONARY, O_RDONLY)) == -1) {  // This works
+        fprintf(stderr, "Error reading from dictionary.\n%s\n", strerror(errno));        
+        exit(ERR_DICT_OPEN);
+    }
+
+    /* search dictionary */
+    if(ok(fd, argv[1])) { 
         printf("yes\n");
-        return 1; 
+        return 0; 
     } 
     else {
         printf("No\n");
-        return 2;
+        return -1;
+    }
+}
+
+void checkArgs(int argc, char *argv[]) {
+
+    if (argc == 1) {
+        fprintf(stderr, "Must include a word to search for\n"); 
+        exit(ERR_ARG); 
     }
 
+    if (argc > 2) {
+        fprintf(stderr, "Too many arguments. Include only one word to search for \n");
+        exit(ERR_ARG);
+    }
+
+    /* truncate search term if length exceeds word size */
+    if (strlen(argv[1]) > WORD_SIZE) {
+        argv[1][WORD_SIZE - 1] = '\0';  
+    }
 }
+
