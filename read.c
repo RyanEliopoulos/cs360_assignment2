@@ -1,4 +1,101 @@
-#include"read.h"
+#define WORD_SIZE 16
+#define DICTIONARY "./dictionaries/webster"
+
+/* Error exit codes */
+#define ERR_ARG 1           /* 1: issue parsing arguments */
+#define ERR_LSEEK 2         /* 2: lseek failed */
+#define ERR_DICT_READ 3     /* 3: issue reading word from dictionary */
+#define ERR_DICT_OPEN 4     /* 4: failed to open dictionary */
+#define ERR_DICT_CLOSE 5    /* 5: failed to close dictionary */
+
+#include<unistd.h>
+#include<sys/types.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<ctype.h>
+#include<errno.h>
+#include<fcntl.h>
+
+
+/* Makes sure program is given 1 word to search for */
+/* truncates word if longer than WORD_SIZE */
+void checkArgs(int, char *[]);
+
+/* primary logic here */
+/* takes file descriptor and search word */
+int ok(int, char *);
+
+/* docs say off_t is "..no narrower than an int". storing it in a long int should be fine..? */
+/* lseek wrapper with error handling */
+/* needs to be tested */
+off_t seekWrapper(int, off_t, int);
+
+/* reads word from dictionary file into buf and removes trailing whitespace */
+/* Needs to be tested. somehow The errors, anyway. The rest functions as expected */
+void readCustom(int, char *);
+
+
+/* closes dictionary file before exit */
+/* takes file descriptor and exit code */
+void exitWrapper(int, int);
+
+/* takes file descriptor */
+/* adds error check */
+void closeWrapper(int);
+
+/* strcmp wrapper */
+/* bins strcmp return values into < 0, 0, > 0 */
+int strCheck(char *, char *);
+
+/* Checks program arguments for validity */
+/* truncates search word to WORD_SIZE */
+void checkArgs(int, char*[]);
+
+
+/********           Program Begins      ********/
+
+int main(int argc, char *argv[]) {
+
+    /* quick check for argument validity */
+    checkArgs(argc, argv);     
+
+    /* open file */
+    int fd;
+    if ((fd = open(DICTIONARY, O_RDONLY)) == -1) {  
+        fprintf(stderr, "Error reading from dictionary.\n%s\n", strerror(errno));        
+        exit(ERR_DICT_OPEN);
+    }
+
+    /* search dictionary */
+    if(ok(fd, argv[1])) { 
+        printf("Yes\n");
+        return 0; 
+    } 
+    else {
+        printf("No\n");
+        return -1;
+    }
+}
+
+
+void checkArgs(int argc, char *argv[]) {
+
+    if (argc == 1) {
+        fprintf(stderr, "Must include a word to search for\n"); 
+        exit(ERR_ARG); 
+    }
+
+    if (argc > 2) {
+        fprintf(stderr, "Too many arguments. Include only one word to search for \n");
+        exit(ERR_ARG);
+    }
+
+    /* truncate search term if length exceeds word size */
+    if (strlen(argv[1]) > WORD_SIZE) {
+        argv[1][WORD_SIZE - 1] = '\0';  
+    }
+}
 
 
 int ok(int fd, char *want) {
@@ -21,7 +118,7 @@ int ok(int fd, char *want) {
 
         /* Read dictionary word and compare against want */
         readCustom(fd, have);
-        int ret = strcmp(want, have); // Can probably remove this stuff 
+
         printf("ret is %d\n", ret);
         printf("bot is %ld, mid: %ld, top: %ld\n", bot, mid, top);
         printf("have is <%s>\n\n\n", have);
@@ -118,7 +215,7 @@ void exitWrapper(int fd, int exit_code) {
 
 void closeWrapper(int fd) {
 
-    if ( close(fd) == -1) {
+    if (close(fd) == -1) {
         fprintf(stderr, "Error while closing dictionary file.\n%s\n", strerror(errno));
         exit(ERR_DICT_CLOSE); 
     }
@@ -132,23 +229,4 @@ int strCheck(char *s1, char *s2) {
     if (ret < 0) return -1;
     if (ret == 0) return 0;
     if (ret > 0) return 1; 
-}
-
-
-void checkArgs(int argc, char *argv[]) {
-
-    if (argc == 1) {
-        fprintf(stderr, "Must include a word to search for\n"); 
-        exit(ERR_ARG); 
-    }
-
-    if (argc > 2) {
-        fprintf(stderr, "Too many arguments. Include only one word to search for \n");
-        exit(ERR_ARG);
-    }
-
-    /* truncate search term if length exceeds word size */
-    if (strlen(argv[1]) > WORD_SIZE) {
-        argv[1][WORD_SIZE - 1] = '\0';  
-    }
 }
