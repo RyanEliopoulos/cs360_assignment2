@@ -1,4 +1,3 @@
-#include<fcntl.h>
 #include"read.h"
 
 void checkArgs(int, char *[]);

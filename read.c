@@ -4,7 +4,7 @@ int ok(int fd, char *want) {
 
     /* Binary Search variables */
     long int bot = 0;
-    long int top = (elseek (fd, 0, SEEK_END) + 1) / WORD_SIZE;    
+    long int top = (seekWrapper (fd, 0, SEEK_END) + 1) / WORD_SIZE;    
     long int mid = (bot + top) / 2;
 
     /* dictionary word */
@@ -14,12 +14,12 @@ int ok(int fd, char *want) {
     while (1) {
         
         /* Position proper read position */       
-        elseek(fd, mid * WORD_SIZE, SEEK_SET);                
+        seekWrapper(fd, mid * WORD_SIZE, SEEK_SET);                
 
         if (mid == bot || mid == top) break; /* Search space is two lines ('base case'), handle after loop */
 
         /* Read dictionary word and compare against want */
-        reed(fd, have);
+        readCustom(fd, have);
         int ret = strcmp(want, have);
         printf("ret is %d\n", ret);
         printf("bot is %ld, mid: %ld, top: %ld\n", bot, mid, top);
@@ -48,8 +48,8 @@ int ok(int fd, char *want) {
 
     /* Two words left in search range */
     /* mid is equal in value either to bot or top */
-    elseek (fd, mid * WORD_SIZE, SEEK_SET); 
-    reed (fd, have);
+    seekWrapper(fd, mid * WORD_SIZE, SEEK_SET); 
+    readCustom(fd, have);
     if (!strcmp(want, have)) {
         free(have);
         return 1;
@@ -57,8 +57,8 @@ int ok(int fd, char *want) {
     
     (mid == bot) ? top: bot; /* it wasn't the first. So check the second */
 
-    elseek(fd, mid * WORD_SIZE, SEEK_SET);
-    reed(fd, have);
+    seekWrapper(fd, mid * WORD_SIZE, SEEK_SET);
+    readCustom(fd, have);
     if (!strcmp (want, have)) {
         free(have);
         return 1;
@@ -68,9 +68,8 @@ int ok(int fd, char *want) {
     return 0;
 }
 
-/* lseek wrapper with error handling */
-/* needs to be tested */
-off_t elseek(int fd, off_t read_amount, int whence) {
+
+off_t seekWrapper(int fd, off_t read_amount, int whence) {
 
     off_t ret = lseek(fd, read_amount, whence); 
     
@@ -82,9 +81,7 @@ off_t elseek(int fd, off_t read_amount, int whence) {
 }
 
 
-/* reads word from dictionary file into buf and removes trailing whitespace */
-/* Needs to be tested. somehow The errors, anyway. The rest functions as expected */
-void reed(int fd, char *buf) {
+void readCustom(int fd, char *buf) {
 
     /* read word from file */ 
     int ret = read(fd, buf, WORD_SIZE);   
@@ -110,7 +107,23 @@ void reed(int fd, char *buf) {
     while (isspace(buf[--i])) buf[i] = '\0';
 }
 
-/* wrapper for strcmp */
+
+void exitWrapper(int fd, int exit_code) {
+
+    closeWrapper(fd);
+    exit(exit_code);
+}
+
+
+void closeWrapper(int fd) {
+
+    if ( close(fd) == -1) {
+        fprintf(stderr, "Error while closing dictionary file.\n%s\n", strerror(errno));
+        exit(ERR_DICT_CLOSE); 
+    }
+}
+
+
 int strCheck(char *s1, char *s2) {
 
     int ret = strcmp(s1, s2);
