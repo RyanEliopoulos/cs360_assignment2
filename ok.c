@@ -69,11 +69,11 @@ int main(int argc, char *argv[]) {
 
     /* search dictionary */
     if(ok(fd, argv[1])) { 
-        printf("Yes\n");
+        printf("yes\n");
         return 0; 
     } 
     else {
-        printf("No\n");
+        printf("no\n");
         return -1;
     }
 }
