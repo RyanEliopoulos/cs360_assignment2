@@ -32,9 +32,11 @@ off_t seekWrapper(int, off_t, int);
 void readCustom(int, char *);
 
 /* takes file descriptor and exit code */
+/* includes call to closeWrapper */
 void exitWrapper(int, int);
 
 /* takes file descriptor */
+/* adds error check */
 void closeWrapper(int);
 
 /* strcmp wrapper */

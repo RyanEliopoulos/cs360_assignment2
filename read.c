@@ -77,7 +77,7 @@ off_t seekWrapper(int fd, off_t read_amount, int whence) {
     /* checking for lseek errors */ 
     if (ret == -1) {
         fprintf(stderr, "Error read at offset %d.\n %s\n", whence, strerror(errno));
-        exitWrapper(ERR_LSEEK);
+        exitWrapper(fd, ERR_LSEEK);
     }
 }
 
@@ -91,14 +91,14 @@ void readCustom(int fd, char *buf) {
     if (ret  == -1) {
         fprintf(stderr, "error reading word from dictionary.\n %s", strerror(errno)); 
         free(buf);
-        exitWrapper(ERR_DICT_READ);
+        exitWrapper(fd, ERR_DICT_READ);
     }
 
     /* check for nonsense */
     if (ret < WORD_SIZE) {
         fprintf(stderr, "failed to read and entire word for some reason\n");
         free(buf);
-        exitWrapper(ERR_DICT_READ);
+        exitWrapper(fd, ERR_DICT_READ);
     }
 
     /* Remove trailing whitespace and null-terminate */
@@ -139,12 +139,12 @@ void checkArgs(int argc, char *argv[]) {
 
     if (argc == 1) {
         fprintf(stderr, "Must include a word to search for\n"); 
-        exitWrapper(ERR_ARG); 
+        exit(ERR_ARG); 
     }
 
     if (argc > 2) {
         fprintf(stderr, "Too many arguments. Include only one word to search for \n");
-        exitWrapper(ERR_ARG);
+        exit(ERR_ARG);
     }
 
     /* truncate search term if length exceeds word size */

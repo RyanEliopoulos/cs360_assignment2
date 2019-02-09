@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
     int fd;
     if ((fd = open(DICTIONARY, O_RDONLY)) == -1) {  // This works
         fprintf(stderr, "Error reading from dictionary.\n%s\n", strerror(errno));        
-        exitWrapper(ERR_DICT_OPEN);
+        exit(ERR_DICT_OPEN);
     }
 
     /* search dictionary */
