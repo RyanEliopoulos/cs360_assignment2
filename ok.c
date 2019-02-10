@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
     } 
     else {
         printf("no\n");
-        return -1;
+        return 99;
     }
 }
 
@@ -119,36 +119,34 @@ int ok(int fd, char *want) {
         /* Read dictionary word and compare against want */
         readCustom(fd, have);
 
-        int ret = strcmp(want, have);
-        printf("ret is %d\n", ret);
-        printf("bot is %ld, mid: %ld, top: %ld\n", bot, mid, top);
-        printf("have is <%s>\n\n\n", have);
+        /* compare the strings */
         switch (strCheck (want, have)) {
             case -1:  /* Word we are searching for comes before the one we have */
-                printf("case -1\n");
+                //printf("case -1\n");
                 top = mid;
                 mid = (bot + top) / 2; 
                 break;
 
             case 0:  /* match */
-                printf("case 0\n");
+                //printf("case 0\n");
                 free(have);
                 return 1;
 
             case 1: /* Word we are searching for comes after one we have */
-                printf("case 1\n");
+                //printf("case 1\n");
                 bot = mid;
                 mid = (bot + top) / 2;
         } 
-        printf("get here?\n");
+        //printf("get here?\n");
     }
 
-    printf("bot: %ld, mid:%ld, top:%ld\n", bot, mid ,top);
+    //printf("bot: %ld, mid:%ld, top:%ld\n", bot, mid ,top);
 
     /* Two words left in search range */
     /* mid is equal in value either to bot or top */
     seekWrapper(fd, mid * WORD_SIZE, SEEK_SET); 
     readCustom(fd, have);
+
     if (!strcmp(want, have)) {
         free(have);
         return 1;
@@ -158,6 +156,7 @@ int ok(int fd, char *want) {
 
     seekWrapper(fd, mid * WORD_SIZE, SEEK_SET);
     readCustom(fd, have);
+
     if (!strcmp (want, have)) {
         free(have);
         return 1;
