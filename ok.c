@@ -143,10 +143,10 @@ int ok(int fd, char *want) {
                 bot = mid;
                 mid = (bot + top) / 2;
         } 
-        //printf("get here?\n");
+        printf("get here?\n");
     }
 
-    //printf("bot: %ld, mid:%ld, top:%ld\n", bot, mid ,top);
+    printf("bot: %ld, mid:%ld, top:%ld\n", bot, mid ,top);
 
     /* Two words left in search range */
     /* mid is equal in value either to bot or top */
