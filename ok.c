@@ -7,7 +7,7 @@
 
 
 #define WORD_SIZE 16
-#define DICTIONARY "./dictionaries/tiny"
+#define DICTIONARY "./dictionaries/webster"
 
 /* Error exit codes */
 #define ERR_ARG 1           /* 1: issue parsing arguments */
