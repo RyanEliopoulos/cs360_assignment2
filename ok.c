@@ -1,5 +1,13 @@
+/*
+ *  Ryan Paulos
+ *  CS 360, WSUV
+ *  Spring 2019
+ *
+ */
+
+
 #define WORD_SIZE 16
-#define DICTIONARY "./dictionaries/webster"
+#define DICTIONARY "./dictionaries/tiny"
 
 /* Error exit codes */
 #define ERR_ARG 1           /* 1: issue parsing arguments */
@@ -28,13 +36,10 @@ int ok(int, char *);
 
 /* docs say off_t is "..no narrower than an int". storing it in a long int should be fine..? */
 /* lseek wrapper with error handling */
-/* needs to be tested */
 off_t seekWrapper(int, off_t, int);
 
 /* reads word from dictionary file into buf and removes trailing whitespace */
-/* Needs to be tested. somehow The errors, anyway. The rest functions as expected */
 void readCustom(int, char *);
-
 
 /* closes dictionary file before exit */
 /* takes file descriptor and exit code */
@@ -100,9 +105,10 @@ void checkArgs(int argc, char *argv[]) {
 
 int ok(int fd, char *want) {
 
+
     /* Binary Search variables */
     long int bot = 0;
-    long int top = (seekWrapper (fd, 0, SEEK_END) + 1) / WORD_SIZE;    
+    long int top = (seekWrapper (fd, 0, SEEK_END)) / WORD_SIZE;    
     long int mid = (bot + top) / 2;
 
     /* dictionary word */
